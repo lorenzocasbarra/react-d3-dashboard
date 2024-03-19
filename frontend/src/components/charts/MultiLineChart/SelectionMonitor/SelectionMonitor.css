@@ -1,0 +1,9 @@
+.selectionContainer {
+  margin-top:20px;
+  align-self: flex-start;
+  padding:10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+}
