@@ -3,6 +3,18 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Files folder for the .json time series files
+files/
+
+# React
+frontend/build/
+frontend/node_modules/
+frontend/README.md
+
+# FastAPI
+api/app/__init__.py
+api/app/__pycache__/
+
 # C extensions
 *.so
 
