@@ -4,7 +4,8 @@ __pycache__/
 *$py.class
 
 # Files folder for the .json time series files
-files/
+./files/*
+frontend/src/files
 
 # React
 ## dependencies
