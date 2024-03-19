@@ -1,0 +1,25 @@
+
+services:
+ api:
+  image: vonb/dashboard:api
+  container_name: dashboard-api
+  build: ./api
+  #network_mode: host
+  ports:
+   - "8000:8000"
+  volumes:
+   - ./api:/api
+   - ./files:/files
+  command: bash -c "python3 main.py"
+  
+ web:
+  image: vonb/dashboard:web
+  container_name: dashboard-web
+  #network_mode: host
+  build: ./frontend
+  ports:
+   - "3000:3000"
+  volumes:
+   - ./frontend:/frontend
+  #command: bash -c "serve -s build"
+
