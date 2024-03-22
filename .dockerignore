@@ -1,3 +1,5 @@
+.git
+.gitignore
 frontend/build
 frontend/node_modules
 frontend/README.md

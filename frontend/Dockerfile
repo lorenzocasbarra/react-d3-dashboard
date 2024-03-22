@@ -8,8 +8,9 @@ RUN \
 	npm install -g npm@10.4.0 && \
 	npm install -g serve && \
 	npm install && \
-	npm add d3 && \
-	npm run build
+	npm add d3
+	
+RUN npm run build
 
 EXPOSE 3000
 
