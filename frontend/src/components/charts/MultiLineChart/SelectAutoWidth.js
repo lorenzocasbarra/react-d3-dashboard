@@ -28,7 +28,7 @@ export default function SelectAutoWidth({text,dataAvailable = [],onChange,dataSe
           </MenuItem>
           {
             dataAvailable.map((info) => (
-              <MenuItem  sx={customStyle.menuItemStyle} key={info.name} value={info.name}>
+              <MenuItem  sx={customStyle.menuItemStyle} key={info.name} title={info.title ? info.title : null} value={info.name}>
                 <em>{info.name}</em>
               </MenuItem>
             ))

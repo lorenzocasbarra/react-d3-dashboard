@@ -41,7 +41,9 @@ export const GitHubIssue = () => {
     //     errorText = errorText + 
     //   }
     // });
-    if (!(titleCheck && tagsCheck && descriptionCheck && stepsCheck)) {
+    if (!(titleCheck && tagsCheck && descriptionCheck && stepsCheck) && label.name ==="bug") {
+      alert("Please fill missing fields")
+    } else if (!(titleCheck && tagsCheck && descriptionCheck) && label.name !=="bug"){
       alert("Please fill missing fields")
     } else {
       sendGhIssue({owner:"lorenzocasbarra",repo:"react-d3-dashboard",accessToken,title,label:label.name,issue})
@@ -53,7 +55,8 @@ export const GitHubIssue = () => {
   },[label.name,os.name,browser.name])
 
   useEffect(() =>{
-    const text = `OS: ${os.name}\nBrowser: ${browser.name}\nDescription: ${description}\nSteps to reproduce: ${steps}\n`
+    const text = `OS: ${os.name}\nBrowser: ${browser.name}\nDescription:\n ${description}\n${label.name === "bug" ? `Steps to reproduce:\n ${steps}\n` : ``}`;
+     
     setIssue(text)
   },[label.name,os.name,browser.name,steps,description])
 
@@ -281,14 +284,21 @@ export const GitHubIssue = () => {
               </div>
 
               <div style={{display:"flex",alignSelf:"flex-start",flexDirection: "row",width:"100%",justifyContent: "space-between",marginTop:"50px"}}>
-                <div style={{display:"flex",alignSelf:"flex-start",flexDirection: "column",width:"80%"}}>
-                  Steps to Reproduce:<textarea onChange={onChangeSteps} rows="4" cols="50" style={{height:"200px",resize: "none"}} ></textarea>
-                </div>
-                <div style={{marginTop:"50px"}}>
-                  <IconContext.Provider value={{size:"50px",color: stepsCheck ? ' #a4ff00' : " #ff0000"}}>
-                    {stepsCheck ? <FaCheckCircle/> : <MdCancel/>}
-                  </IconContext.Provider>
-                </div>
+                { label.name === "bug" ?
+                  <>
+                    <div style={{display:"flex",alignSelf:"flex-start",flexDirection: "column",width:"80%"}}>
+                      Steps to Reproduce:<textarea onChange={onChangeSteps} rows="4" cols="50" style={{height:"200px",resize: "none"}} ></textarea>
+                    </div>
+                    <div style={{marginTop:"50px"}}>
+                      <IconContext.Provider value={{size:"50px",color: stepsCheck ? ' #a4ff00' : " #ff0000"}}>
+                        
+                          {stepsCheck ? <FaCheckCircle/> : <MdCancel/>}
+                        
+                      </IconContext.Provider>
+                    </div>
+                  </>
+                  : null
+                }
               </div>
               {
                 
