@@ -6,6 +6,7 @@ import * as AiIcons from 'react-icons/ai'
 import {SidebarData} from './SidebarData'
 import SubMenu from './SubMenu'
 import { IconContext } from 'react-icons/lib';
+import {OutsideClickDetector} from './OutsideClickDetector.js';
 
 const Nav = styled.div`
     background: #15171c;
@@ -32,7 +33,7 @@ const Sidebarnav = styled.nav`
     justify-content: flex-start;
     position: fixed;
     top: 0;
-    left: ${({ sidebar }) => (sidebar ? 0 : '-100%')};
+    left: ${(props)  => (props.$sidebar ? "0" : '-100%')};
     transition: 350ms;
     z-index: 10;
 `;
@@ -43,19 +44,28 @@ const SidebarWrap = styled.div`
 
 const Sidebar = () => {
 
-    const [sidebar, setSidebar] = useState(0);
+    const [sidebar, setSidebar] = useState(false);
 
-    const showSidebar = () => setSidebar (!sidebar)
+    const showSidebar = () => setSidebar (sidebar ? false : true)
+
+    const handleClickOutside = () => {
+      if (sidebar) {
+        setSidebar(false)
+      } else {
+        return
+      }
+    };
 
     return (
         <>
+          <OutsideClickDetector handleClickOutside={handleClickOutside}>
             <IconContext.Provider value={{ color: '#fff'}}>
             <Nav>
                 <NavIcon to='#'>
                     <FaIcons.FaBars onClick={showSidebar} />
                 </NavIcon>
             </Nav>
-            <Sidebarnav sidebar={sidebar}>
+            <Sidebarnav $sidebar={sidebar}>
                 <SidebarWrap>
                     <NavIcon>
                         <AiIcons.AiOutlineClose onClick={showSidebar}/>
@@ -66,6 +76,7 @@ const Sidebar = () => {
                 </SidebarWrap>
             </Sidebarnav>
             </IconContext.Provider>
+          </OutsideClickDetector>
         </>
     );
 }
