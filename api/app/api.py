@@ -34,6 +34,34 @@ app.add_middleware(
 async def read_root() -> dict:
   return {"message": "Welcome to your dashboard!"}
 
+@app.get("/get-access-token")
+async def get_gh_token(code: str):
+  import requests
+  import json
+
+  CLIENT_ID="a15c35402808a5e46c2d"
+  CLIENT_SECRET="1e5c09f018ac685ff7e91a46e19e1cbff5cf9173"
+  headers={"Accept":"application/json"}
+  params = f"?client_id={CLIENT_ID}&client_secret={CLIENT_SECRET}&code={code}"
+  response = requests.post(f"https://github.com/login/oauth/access_token{params}", headers=headers)
+
+  print(json.loads(response.text))
+  
+  return(json.loads(response.text)["access_token"])
+
+@app.get("/get-gh-user-data")
+async def get_gh_user_data(token: str):
+  import requests
+  import json
+  # print(f"TOKEN: {token}")
+  headers={"Authorization":f"Bearer {token}"}
+  response=requests.get("https://api.github.com/user",headers=headers)
+  # print(json.loads(response.text))
+  return(json.loads(response.text))
+
+
+
+
 
 @app.get("/scan-data/")
 async def scan_data():
@@ -87,8 +115,7 @@ async def calculate_cross_correlation(payload: Payload = Body(None)) -> dict:
 
   #prepare dataframe
   df = payload.getDF(datesRange)
-  
-  #cross correlation
+  #interpolation -> z score -> cross correlation
   results = payload.crossCorrelation(pair1,pair2,timeData,df)
 
   return results

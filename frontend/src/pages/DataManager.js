@@ -239,7 +239,7 @@ export const DataManager = () => {
           { 
             displaySel ?
             <ColumnsSection 
-              selectNames={["Time","Flares"]}
+              selectNames={["Time","Markers"]}
               dataSelections={[timeColumnSelected,flareColumnSelected]}
               dataAvailables={[timeColumnsAvailable,flareColumnsAvailable]}
               onChangeHandlers={[onChange,onChange2]}

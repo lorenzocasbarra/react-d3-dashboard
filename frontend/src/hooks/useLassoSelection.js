@@ -53,7 +53,7 @@ export function useLassoSelection({
         {
           filteredItemsDef[line.name] = {};
           filteredItems[line.name].map((item) =>{
-            filteredItemsDef[line.name][item.date] = item.value
+            filteredItemsDef[line.name][item.date] = item.raw //SHOULD BE VALUE
             c++
             return null
           })

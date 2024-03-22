@@ -14,17 +14,23 @@ def xcorr(x,y,maxLag,totalDays):
   lags : lags of correlation
   corr : coefficients of correlation
   """
+
   corr = signal.correlate(x, y, mode="full")
+  
   lags = signal.correlation_lags(len(x), len(y), mode="full")
   zeroIndex = list(lags).index(0)
-  corr = corr[zeroIndex - maxLag:zeroIndex + maxLag +1]
-  lags = lags[zeroIndex - maxLag:zeroIndex + maxLag + 1]
+  a = zeroIndex - maxLag
+  b = zeroIndex + maxLag +1
+  
+  lags = lags[(zeroIndex - maxLag) : (zeroIndex + maxLag + 1)]
   cFixed = []
-  for c in corr:
+  for c in corr[a:b]:
     if np.isnan(c):
       cFixed.append("")
     else:
+      print(c)
       cFixed.append(c/totalDays)
 
-
+  print(cFixed)
+  
   return lags, cFixed

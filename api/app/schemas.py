@@ -29,6 +29,22 @@ class Payload(BaseModel):
     
     return datesRange,timeData
   
+
+  def getDF2(self,datesRange,timeData):
+    import pandas as pd
+    dfData = pd.DataFrame({
+      "timestamps" : list(datesRange)
+    })
+    for marker in self.items:
+      df = pd.DataFrame({
+        "timestamps" : self.items[marker].keys(),
+        marker : [self.items[marker][date] for date in self.items[marker]]
+      })
+      dfData = pd.merge(dfData, df[['timestamps', marker]], on='timestamps', how="outer")
+      
+    print(dfData)
+    return(dfData)
+
   def getCombinations(self,timeData):
     from datetime import datetime
     pair1 =[]
@@ -51,10 +67,9 @@ class Payload(BaseModel):
         players = players[1:]
       else:
         break
-    
     return(pair1,pair2)
 
-
+  
   def getDF(self,datesRange):
     import pandas as pd
 
@@ -79,9 +94,12 @@ class Payload(BaseModel):
     return(df)
 
   def crossCorrelation(self,pair1,pair2,timeData,df):
+    from datetime import datetime
     import pandas as pd
     from .statUtils import xcorr
     import math
+    import scipy.stats as stats
+
 
     lagLim = int(self.lag)       #lag limit
 
@@ -90,18 +108,43 @@ class Payload(BaseModel):
     for i, name in enumerate(pair1):
 
       #subset df based on relevant days for each pair
-      row_num_max = df[df['timestamps'] == timeData[name+" vs. "+pair2[i]]["max"]].index[0]
-      row_num_min = df[df['timestamps'] == timeData[name+" vs. "+pair2[i]]["min"]].index[0] 
-      dfSlim = df.iloc[row_num_min:row_num_max+1]
-      totalDays = len(dfSlim["timestamps"])
-
-      #interpolation
-      interData1 = dfSlim[name].interpolate('pchip')
-      interData2 = dfSlim[pair2[i]].interpolate('pchip')
-
-      #cross correlation
-      lags,c = xcorr(interData1,interData2,lagLim,totalDays)
+      # row_num_max = df[df['timestamps'] == timeData[name+" vs. "+pair2[i]]["max"]].index[0]
+      # row_num_min = df[df['timestamps'] == timeData[name+" vs. "+pair2[i]]["min"]].index[0] 
+      # dfSlim = df.iloc[row_num_min:row_num_max+1]
       
+      
+      row_num_max_1 = df[df['timestamps'] == datetime.strftime(timeData[name]["max"],'%Y-%m-%d')].index[0]
+      row_num_min_1 = df[df['timestamps'] == datetime.strftime(timeData[name]["min"],'%Y-%m-%d')].index[0]
+      
+      dfSlim1 = df[["timestamps",name]].iloc[row_num_min_1:row_num_max_1+1]
+      row_num_max_2 = df[df['timestamps'] == datetime.strftime(timeData[pair2[i]]["max"],'%Y-%m-%d')].index[0]
+      row_num_min_2 = df[df['timestamps'] == datetime.strftime(timeData[pair2[i]]["min"],'%Y-%m-%d')].index[0] 
+      dfSlim2 = df[["timestamps",pair2[i]]].iloc[row_num_min_2:row_num_max_2+1]
+
+
+      
+      dfSlim = pd.merge(dfSlim1, dfSlim2, on='timestamps', how="outer")
+      
+      totalDays = len(dfSlim["timestamps"])
+      #interpolation
+      interData1 = dfSlim1[name].interpolate('pchip')
+      interData2 = dfSlim2[pair2[i]].interpolate('pchip')
+
+      z1 = stats.zscore(interData1,
+        axis=0,
+        ddof=0,
+        nan_policy='omit'
+      )
+      z2 = stats.zscore(interData2,
+        axis=0,
+        ddof=0,
+        nan_policy='omit'
+      )
+
+      # print(interData1)
+      # print(interData2)
+      #cross correlation
+      lags,c = xcorr(z1,z2,lagLim,totalDays)
       #results assembly
       results[name+" vs. "+pair2[i]] = {}
       results[name+" vs. "+pair2[i]]["lags"] = lags.tolist()
