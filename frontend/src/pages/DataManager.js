@@ -26,15 +26,19 @@ export const DataManager = () => {
   const [tagsUploadProgress, setTagsUploadProgress] = useState(0);
   const [onSubmit,setOnSubmit] = useState(false);
   const [displaySel,setDisplaySel] = useState(false);
-  const [uploadFile,setUploadFile] = useState({fileName:"",booleanCols:[],timeCols:[], numericCols:[], fileTextContent:""});
+  const [uploadFile,setUploadFile] = useState({fileName:"",booleanCols:[],timeCols:[], stringCols:[], numericCols:[], fileTextContent:""});
   
   const [uploadFile2,setUploadFile2] = useState({fileName:"",items:[], counters: {}});
   
   const [timeColumnSelected,setTimeColumnSelected] = useState({name: ""});
-  const [timeColumnsAvailable,setTimeColumnsAvailable] = useState([{name: ""}])
+  const [timeColumnsAvailable,setTimeColumnsAvailable] = useState([{name: ""}]);
   
-  const [flareColumnsAvailable,setFlareColumnsAvailable] = useState([{name: ""}])
+  const [flareColumnsAvailable,setFlareColumnsAvailable] = useState([{name: ""}]);
   const [flareColumnSelected,setFlareColumnSelected] = useState({name: ""});
+
+  const [idColumnsAvailable, setIdColumnsAvailable] = useState([{name: ""}]);
+  const [idColumnSelected,setIdColumnSelected] = useState({name: ""});
+
 
   const [dataTypeAvailable, setDataAvailable] = useState([{name: "Time Series"},{name: "Categorical"}]);
   const [dataTypeSelected, setDataTypeSelected] = useState({name: ""});
@@ -61,7 +65,7 @@ export const DataManager = () => {
       "Content-Type": "multipart/form-data"
     }})
     .then(response => {
-      // console.log(response.data)
+      console.log(response.data)
       setUploadFile(response.data);
       setDisplaySel(true)
       setTimeout(() =>setDataUploadProgress(0),1000)
@@ -156,6 +160,7 @@ export const DataManager = () => {
     
     setTimeColumnsAvailable(uploadFile.timeCols.map((name) => ({name:name})))
     setFlareColumnsAvailable(uploadFile.booleanCols.map((name) => ({name:name})))
+    setIdColumnsAvailable(uploadFile.stringCols.map((name) => ({name:name})))
   },[uploadFile])
 
   // useEffect(() => {
@@ -241,7 +246,7 @@ export const DataManager = () => {
             <ColumnsSection 
               selectNames={dataTypeSelected.name === "Time Series" ? ["Time","Markers"] : dataTypeSelected.name === "Categorical" ? ["ID"] : []}
               dataSelections={[timeColumnSelected,flareColumnSelected]}
-              dataAvailables={[timeColumnsAvailable,flareColumnsAvailable]}
+              dataAvailables={dataTypeSelected.name === "Time Series" ? [timeColumnsAvailable,flareColumnsAvailable] : dataTypeSelected.name === "Categorical" ? [idColumnsAvailable] : []}
               onChangeHandlers={[onChange,onChange2]}
             />
             : null
