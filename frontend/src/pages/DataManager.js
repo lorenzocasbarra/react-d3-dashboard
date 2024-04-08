@@ -36,7 +36,7 @@ export const DataManager = () => {
   const [flareColumnsAvailable,setFlareColumnsAvailable] = useState([{name: ""}])
   const [flareColumnSelected,setFlareColumnSelected] = useState({name: ""});
 
-  const [dataTypeAvailable, setDataAvailable] = useState([{name: "Time Series"}]);
+  const [dataTypeAvailable, setDataAvailable] = useState([{name: "Time Series"},{name: "Categorical"}]);
   const [dataTypeSelected, setDataTypeSelected] = useState({name: ""});
 
 
@@ -239,7 +239,7 @@ export const DataManager = () => {
           { 
             displaySel ?
             <ColumnsSection 
-              selectNames={["Time","Markers"]}
+              selectNames={dataTypeSelected.name === "Time Series" ? ["Time","Markers"] : dataTypeSelected.name === "Categorical" ? ["ID"] : []}
               dataSelections={[timeColumnSelected,flareColumnSelected]}
               dataAvailables={[timeColumnsAvailable,flareColumnsAvailable]}
               onChangeHandlers={[onChange,onChange2]}
