@@ -151,6 +151,12 @@ async def upload_data_csv(file: UploadFile):
         num_cols.append(column)
     return num_cols
 
+  def getStringColumns(df):
+    string_cols = []
+    for column in df.columns:
+      if df[column].dtypes == str or df[column].dtypes == object:
+        string_cols.append(column)
+    return string_cols
 
   # validation on file type
   if file.content_type != "text/csv":
@@ -170,7 +176,9 @@ async def upload_data_csv(file: UploadFile):
   #scan for numeric columns
   num_cols = getNumColumns(df)
 
-  return jsonable_encoder({"fileName": file.filename, "booleanCols":bool_cols, "timeCols":time_cols, "numericCols": num_cols, "fileTextContent":contents.decode('utf-8')})
+  string_cols = getStringColumns(df)
+
+  return jsonable_encoder({"fileName": file.filename, "booleanCols":bool_cols, "timeCols":time_cols, "stringCols":string_cols, "numericCols": num_cols, "fileTextContent":contents.decode('utf-8')})
 
 @app.get("/upload/data/gist/")
 async def upload_data_gist_link(link: str) -> dict:
