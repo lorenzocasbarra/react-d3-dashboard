@@ -216,8 +216,15 @@ export const DataManager = () => {
 
   const checkForm = function() {
     
-    if (expTitle && timeColumnSelected.name && dataTypeSelected.name) {
-      handleFileSave()
+    if (dataTypeSelected === "Time Series") {
+      if (expTitle && timeColumnSelected.name && dataTypeSelected.name) {
+        handleFileSave()
+      }
+    }
+    if (dataTypeSelected === "Categorical") {
+      if (expTitle && idColumnSelected.name && dataTypeSelected.name) {
+        handleFileSave()
+      }
     }
   }
 
