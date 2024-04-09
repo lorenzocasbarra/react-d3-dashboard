@@ -174,6 +174,7 @@ class SavePayload(BaseModel):
   tagsFile: dict
   timeColumn: str
   flareColumn: str
+  idColumn: str
 
   def __getitem__(self): 
     print(self.title)
@@ -182,7 +183,7 @@ class SavePayload(BaseModel):
     print(self.timeColumn)
     print(self.flareColumn)
 
-  def getDicts(self):
+  def getDictsTimeSeries(self):
     import pandas as pd
     import numpy as np
     from io import StringIO
@@ -236,4 +237,42 @@ class SavePayload(BaseModel):
     print("Done")
     return(info,data,time)
 
-  
+  def getDictsCategorical(self):
+    import pandas as pd
+    import numpy as np
+    from io import StringIO
+
+    def getItems (df,id_col,num_cols):
+      items = {
+        marker: {
+          "name": marker,
+          "id": "",
+          "type": "",
+          "items" : {id: {
+            "date": id,
+            "value": ""
+          } for id in df[id_col]}
+        } for marker in num_cols
+      }
+      for index,row in df.iterrows():
+        for marker in num_cols:
+          if (not np.isnan(row[marker])):
+            items[marker]["items"][row[id_col]]["value"] = row[marker]
+          else:
+            items[marker]["items"][row[id_col]]["value"] = None
+      
+      return items
+
+
+
+    info = {
+      "name":self.title,
+      "type":self.type,
+      "xColumn":self.idColumn,
+      "dataFileName": "data"
+    }
+    df = pd.read_csv(StringIO(self.dataFile["fileTextContent"]))
+    data = getItems(df,self.idColumn,self.dataFile["numericCols"])
+
+    print("Done")
+    return(info,data)
