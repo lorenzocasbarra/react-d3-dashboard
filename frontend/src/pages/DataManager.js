@@ -174,7 +174,8 @@ export const DataManager = () => {
       dataFile: uploadFile,
       tagsFile: uploadFile2,
       timeColumn: timeColumnSelected.name,
-      flareColumn: flareColumnSelected.name, 
+      flareColumn: flareColumnSelected.name,
+      idColumn: idColumnSelected.name
     }
     setOnSubmit(true)
     axios.post('http://localhost:8000/save/json', requestBody,{
@@ -213,16 +214,20 @@ export const DataManager = () => {
   const onChange6 = function(event) {
     setGist2(event.target.value)
   }
+  const onChange7 = function(event) {
+    setIdColumnSelected({name: event.target.value})
+  }
 
   const checkForm = function() {
     
-    if (dataTypeSelected === "Time Series") {
-      if (expTitle && timeColumnSelected.name && dataTypeSelected.name) {
+    if (dataTypeSelected.name === "Time Series") {
+      if (expTitle && timeColumnSelected.name) {
         handleFileSave()
       }
     }
-    if (dataTypeSelected === "Categorical") {
-      if (expTitle && idColumnSelected.name && dataTypeSelected.name) {
+    if (dataTypeSelected.name === "Categorical") {
+      console.log(idColumnSelected.name)
+      if (expTitle && idColumnSelected.name) {
         handleFileSave()
       }
     }
@@ -252,9 +257,9 @@ export const DataManager = () => {
             displaySel ?
             <ColumnsSection 
               selectNames={dataTypeSelected.name === "Time Series" ? ["Time","Markers"] : dataTypeSelected.name === "Categorical" ? ["ID"] : []}
-              dataSelections={[timeColumnSelected,flareColumnSelected]}
+              dataSelections={dataTypeSelected.name === "Time Series" ? [timeColumnSelected,flareColumnSelected] : dataTypeSelected.name === "Categorical" ? [idColumnSelected] : []}
               dataAvailables={dataTypeSelected.name === "Time Series" ? [timeColumnsAvailable,flareColumnsAvailable] : dataTypeSelected.name === "Categorical" ? [idColumnsAvailable] : []}
-              onChangeHandlers={[onChange,onChange2]}
+              onChangeHandlers={dataTypeSelected.name === "Time Series" ? [onChange,onChange2]  : dataTypeSelected.name === "Categorical" ?  [onChange7] : []}
             />
             : null
           }
