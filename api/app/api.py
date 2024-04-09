@@ -343,12 +343,21 @@ async def upload_csv(payload: SavePayload) -> str:
         data[marker]["items"][date]["z"] = float(values[index]) if not np.isnan(values[index]) else None
     return(data)
 
+  fileNames = []
+  info = {}
+  data = {}
+  time = {}
 
-  info,data,time = payload.getDicts()
+  if  payload.type == 'Time Series':
+    info,data,time = payload.getDictsTimeSeries()
+    fileNames = ["info","data","marks"]
+
+  if payload.type == 'Categorical':
+    info,data = payload.getDictsCategorical()
+    fileNames = ["info","data"]
 
   data = zScoreCalc(data)
 
-  fileNames = ["info","data","marks"]
 
 
   if not os.path.exists(f'../files/{info["name"]}/'):
@@ -357,9 +366,12 @@ async def upload_csv(payload: SavePayload) -> str:
     print("Folder already exists")
     # throw error here for now it overwrites automatically
 
+
+
   for i,dict in enumerate([info,data,time]):
-    with open(f'../files/{info["name"]}/{fileNames[i]}.json','w', newline='') as f:
-      tpJSONData=json.dumps(dict, indent=2, cls=DictEncoder)
-      f.write(tpJSONData)
+    if dict:
+      with open(f'../files/{info["name"]}/{fileNames[i]}.json','w', newline='') as f:
+        tpJSONData=json.dumps(dict, indent=2, cls=DictEncoder)
+        f.write(tpJSONData)
 
   return("Done")
