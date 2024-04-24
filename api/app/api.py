@@ -125,6 +125,8 @@ async def calculate_cross_correlation(payload: Payload = Body(None)) -> dict:
 async def upload_data_csv(file: UploadFile):
   import pandas as pd
   from io import StringIO
+  import os
+  import csv
   
   def getBooleanColumns(df):
     bool_cols = []
@@ -151,21 +153,23 @@ async def upload_data_csv(file: UploadFile):
         num_cols.append(column)
     return num_cols
 
-  def getStringColumns(df):
-    string_cols = []
-    for column in df.columns:
-      if df[column].dtypes == str or df[column].dtypes == object:
-        string_cols.append(column)
-    return string_cols
-
-  # validation on file type
-  if file.content_type != "text/csv":
+  
+  contents = await file.read()
+  decoded_content = contents.decode('utf-8')
+  # windows assigns this MIME type automagically to every text csv, it's shit, but what can you do about it?
+  if file.content_type == "application/vnd.ms-excel":
+    # Read the first few lines to check if they are comma-separated
+    try:
+      first_lines = decoded_content.split('\n')[:5]
+      is_csv = all(csv.Sniffer().sniff(line).delimiter == ',' for line in first_lines)
+      if not is_csv:
+        raise HTTPException(status_code=409, detail="File content is not comma-separated!")
+    except Exception as e:
+      raise HTTPException(status_code=409, detail="Error reading file content: {}".format(str(e)))
+  elif file.content_type != "text/csv":
     raise HTTPException(status_code=409, detail="Invalid file type: not .csv!")
 
-  # awaiting for file and loading it to df
-
-  contents = await file.read()
-  df = pd.read_csv(StringIO(contents.decode('utf-8')))
+  df = pd.read_csv(StringIO(decoded_content))
 
   #scan for datetime columns
   time_cols = getTimeColumns(df)
@@ -176,9 +180,7 @@ async def upload_data_csv(file: UploadFile):
   #scan for numeric columns
   num_cols = getNumColumns(df)
 
-  string_cols = getStringColumns(df)
-
-  return jsonable_encoder({"fileName": file.filename, "booleanCols":bool_cols, "timeCols":time_cols, "stringCols":string_cols, "numericCols": num_cols, "fileTextContent":contents.decode('utf-8')})
+  return jsonable_encoder({"fileName": file.filename, "booleanCols":bool_cols, "timeCols":time_cols, "numericCols": num_cols, "fileTextContent":contents.decode('utf-8')})
 
 @app.get("/upload/data/gist/")
 async def upload_data_gist_link(link: str) -> dict:
@@ -343,21 +345,12 @@ async def upload_csv(payload: SavePayload) -> str:
         data[marker]["items"][date]["z"] = float(values[index]) if not np.isnan(values[index]) else None
     return(data)
 
-  fileNames = []
-  info = {}
-  data = {}
-  time = {}
 
-  if  payload.type == 'Time Series':
-    info,data,time = payload.getDictsTimeSeries()
-    fileNames = ["info","data","marks"]
-
-  if payload.type == 'Categorical':
-    info,data = payload.getDictsCategorical()
-    fileNames = ["info","data"]
+  info,data,time = payload.getDicts()
 
   data = zScoreCalc(data)
 
+  fileNames = ["info","data","marks"]
 
 
   if not os.path.exists(f'../files/{info["name"]}/'):
@@ -366,12 +359,9 @@ async def upload_csv(payload: SavePayload) -> str:
     print("Folder already exists")
     # throw error here for now it overwrites automatically
 
-
-
   for i,dict in enumerate([info,data,time]):
-    if dict:
-      with open(f'../files/{info["name"]}/{fileNames[i]}.json','w', newline='') as f:
-        tpJSONData=json.dumps(dict, indent=2, cls=DictEncoder)
-        f.write(tpJSONData)
+    with open(f'../files/{info["name"]}/{fileNames[i]}.json','w', newline='') as f:
+      tpJSONData=json.dumps(dict, indent=2, cls=DictEncoder)
+      f.write(tpJSONData)
 
   return("Done")
