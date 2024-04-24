@@ -37,7 +37,8 @@ export function useChartData ({dataSelected,colorScale,onLegend,selectedModeData
           name:dataFetched[marker].name, 
           color:colorScale(marker), 
           type:dataFetched[marker].type,
-          timestamps:dataFetched[marker].items
+          timestamps:dataFetched[marker].items,
+          dataType:dataSelected.type
         })
       ))
       readyData.map((d) =>(
