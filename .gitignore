@@ -1,3 +1,6 @@
+# generic
+frontend/src/components/charts/MultiLineChart/LBCB.js
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -6,7 +9,7 @@ __pycache__/
 # Files folder for the .json time series files
 ./files/*
 frontend/src/files
-frontend/src/components/charts/MultiLineChart/LBCB.js
+
 # React
 ## dependencies
 frontend/.pnp
