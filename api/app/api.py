@@ -296,9 +296,23 @@ async def upload_tags_gist_link(link: str) -> dict:
 async def upload_tags_csv(file: UploadFile):
   import pandas as pd
   from io import StringIO
+  import os
+  import csv
 
   # validation on file type
-  if file.content_type != "text/csv":
+  contents = await file.read()
+  decoded_content = contents.decode('utf-8')
+  # windows assigns this MIME type automagically to every text csv, it's shit, but what can you do about it?
+  if file.content_type == "application/vnd.ms-excel":
+    # Read the first few lines to check if they are comma-separated
+    try:
+      first_lines = decoded_content.split('\n')[:5]
+      is_csv = all(csv.Sniffer().sniff(line).delimiter == ',' for line in first_lines)
+      if not is_csv:
+        raise HTTPException(status_code=409, detail="File content is not comma-separated!")
+    except Exception as e:
+      raise HTTPException(status_code=409, detail="Error reading file content: {}".format(str(e)))
+  elif file.content_type != "text/csv":
     raise HTTPException(status_code=409, detail="Invalid file type: not .csv!")
 
   # validation of columns content -> two columns that contain string
