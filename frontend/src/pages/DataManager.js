@@ -157,10 +157,9 @@ export const DataManager = () => {
   }
 
   useEffect(() => {
-    
-    setTimeColumnsAvailable(uploadFile.timeCols.map((name) => ({name:name})))
-    setFlareColumnsAvailable(uploadFile.booleanCols.map((name) => ({name:name})))
-    setIdColumnsAvailable(uploadFile.stringCols.map((name) => ({name:name})))
+    setTimeColumnsAvailable(uploadFile.timeCols ? uploadFile.timeCols.map((name) => ({name:name})) : [])
+    setFlareColumnsAvailable(uploadFile.booleanCols ? uploadFile.booleanCols.map((name) => ({name:name})) : [])
+    setIdColumnsAvailable(uploadFile.stringCols ? uploadFile.stringCols.map((name) => ({name:name})) : [])
   },[uploadFile])
 
   // useEffect(() => {
